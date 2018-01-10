@@ -93,12 +93,13 @@ public class Interpreter {
 		rozkazy.add("SB"); // String Register - String Register/int Number
 		rozkazy.add("MU"); // String Register * String Register/int Number
 		rozkazy.add("MV"); // String Register <- String Register/int Number
-
+                
 		// ROZKAZY DWUARGUMENTOWE
 		rozkazy.add("CP"); // String processName, String fileName
 		rozkazy.add("SC"); // String processName, String communicate
 		rozkazy.add("WF"); // String FileName, String Content
 		rozkazy.add("WR"); // String FileName, String Register
+                
 
 		// ROZKAZY JEDNOARGUMENTOWE
 		rozkazy.add("DP"); // String processName
@@ -126,12 +127,15 @@ public class Interpreter {
 		stan = 0; // command = 0, param1 = 1; param2 = 2
 	}
 
+        // podpiecie rejestrow do pcb
+        public int A=0, B=0, C=0, D=0;
+        
 	private int getValue(String param1) {
 		switch (param1) {
 		case "A":
-			return PCBbox.A;
+			return A;
 		case "B":
-			return PCBbox.B;
+			return B;
 		case "C":
 			return PCBbox.C;
 		case "D":
@@ -143,10 +147,10 @@ public class Interpreter {
 	private int setValue(String param1, int value) {
 		switch (param1) {
 		case "A":
-			PCBbox.A = value;
+			A = value;
 			break;
 		case "B":
-			PCBbox.B = value;
+			B = value;
 			break;
 		case "C":
 			PCBbox.C = value;
@@ -189,7 +193,7 @@ public class Interpreter {
 		while (true) {
 			// Load char from RAM
 			String x = PCBbox.getproces(procesName).getpid(); //getpid() id aktualnie wykonywanego procesu
-
+                        
 			znak = RAM.getCommandChar(commandCounter, x);
 
 			program += znak;
@@ -231,7 +235,7 @@ public class Interpreter {
 			}
 			break;
 
-		case "MV": // Umieszczenie wartości do rejestru
+		case "MV": // kopiuje rejestr do rejestru, lub liczba
 			if (argDrugiJestRejestrem) {
 				setValue(param1, getValue(param2));
 			} else {
@@ -251,7 +255,8 @@ public class Interpreter {
 		case "JN": // Skok do adresu
 
 			break;
-
+                
+                        
 		case "HT": // Koniec programu
 
 			//ProcessorManager.RUNNING.SetState(4);
@@ -334,6 +339,8 @@ public class Interpreter {
 		}
 	}
 
+        //testy
+        
         
 	public void work(String program, HashMap<String, Integer> labels) {
 		StringBuilder command = new StringBuilder();

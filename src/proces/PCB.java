@@ -17,8 +17,8 @@ public class PCB {
     public String pid;
     public int priority;
     public int uspri;
-    public int A, B, C, D;
-    public int commandCounter;
+    public int A=0, B=0, C=0, D=0;
+    public int commandCounter=0;
     public int nice; //P parametr nadawany przez uzytkownika
     public int cpu; //P wykorzystanie procesora
     

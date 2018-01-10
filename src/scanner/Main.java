@@ -125,6 +125,7 @@ public class Main {
                     System.out.println("TASKKILL: nazwa_procesu: zabijanie procesu; ");
                     System.out.println("GO: kolejny krok wykonywanego procesu; ");
                     System.out.println("START nazwa_procesu nazwa_istniejacego_procesu: stworzenie procesu; ");
+                    
                    
                 }else
                     System.out.println("nieprawidlowe wywolanie komendy");

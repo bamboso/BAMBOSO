@@ -1,11 +1,23 @@
 import fileSystem.FileSystem;
 import java.util.Scanner;
+import proces.PCB;
+import proces.Proces;
+import Komunikacja_Miedzyprocesowa.Pipe;
+import Komunikacja_Miedzyprocesowa.IPC;
+import SynchronizacjaProcesów.Lock;
+import SynchronizacjaProcesów.SynchronizacjaProcesów;
+//import Scheduler.Scheduler;
+import MemoryManagment.MemoryManagment;
+import Interpreter.Interpreter;
+import MemoryManagment.ExchangeFile;
+
 
 public class Main {
  
     public static void main(String[] args) {
         // TODO Auto-generated method stub
-        
+        PCB proc = new PCB("");
+        MemoryManagment mm = new MemoryManagment();
         FileSystem dupa = new FileSystem();
         String string;
         do {
@@ -112,7 +124,7 @@ public class Main {
                     System.out.println("TASKLIST: sprawdzanie listy procesow; ");
                     System.out.println("TASKKILL: nazwa_procesu: zabijanie procesu; ");
                     System.out.println("GO: kolejny krok wykonywanego procesu; ");
-                    System.out.println("START nazwa_procesu grupa_procesu nazwa_pliku: stworzenie procesu; ");
+                    System.out.println("START nazwa_procesu nazwa_istniejacego_procesu: stworzenie procesu; ");
                    
                 }else
                     System.out.println("nieprawidlowe wywolanie komendy");
@@ -122,9 +134,9 @@ public class Main {
             else if(tab[0].equals("MEMORY"))   //////////////////////////////////////////////////////////////////pamięć
             {
                 if(tab.length==1) {
-                   
                     //funkcja pokazująca stan pamięci
-                    System.out.println("stan pamieci");
+                    mm.getCurrentRAM();
+                   // System.out.println("stan pamieci");
                
                    
                 }
@@ -161,7 +173,7 @@ public class Main {
             else if(tab[0].equals("TASKLIST"))   ///////////////////////////////////////////////////////////////lista procesów
             {
                 if(tab.length==1) {
-                   
+                   proc.showproceses();
                     //funkcja pokazująca liste procesów
                     System.out.println("lista procesow");
                    
@@ -174,8 +186,8 @@ public class Main {
             {
                 if(tab.length==2)
                     //tab[1] to nazwa procesu
-                   
-                    System.out.println("zabicie procesu");
+                  proc.getproces(tab[1]).exit();
+                   // System.out.println("zabicie procesu");  
                 else
                     System.out.println("nieprawidlowe wywolanie komendy");
             }
@@ -185,7 +197,7 @@ public class Main {
             {
                 if(tab.length==1) {
                    
-                    //stan procesu po wykonaniu jednego kroku
+                    //stan procesu po wykonaniu jednego kroku - od interpretera
                     System.out.println("kolejny krok w procesie");
                
                    
@@ -198,20 +210,22 @@ public class Main {
            
             else if(tab[0].equals("START"))   //////////////////////////////////////////////////////////////////tworzenie procesu
             {
-                if(tab.length==4) {
+                if(tab.length==3) {
                     /*
                      tab[1] nazwa procesu
-                     tab[2] grupa procesu
+                     tab[2] istniejący proces
                      tab[3] nazwa pliku
                      */
                    
                     //tworzenie procesu
+                    proc.getproces((tab[2])).fork(tab[1]);
                     System.out.println("tworzenie procesu");
                
                 }else
                     System.out.println("nieprawidlowe wywolanie komendy");
             }
             else
+                if(!tab[0].equals("exit"))
             {
                 System.out.println("NIEPOPRAWNA KOMENDA ZIOMUS");
             }

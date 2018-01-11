@@ -23,13 +23,13 @@ public class Scheduler {
 	}
 	
 	//Dodawanie procesu do kolejki procesow gotowych - do uzytku zewnetrznego
-	public static void add_to_ready(PCB pr)
+	public void add_to_ready(PCB pr)
 	{
 		add_to_ready_list(pr);
 		//Output.write("Dodano proces pid: "+pr.pid+" do kolejki procesow gotowych.");
 	}
 	//Dodawanie procesu do kolejki procesow gotowych - metoda wewnetrzna
-	public static void add_to_ready_list(PCB pr)
+	public void add_to_ready_list(PCB pr)
 	{
 		if(qs.get(pr.priority/4).size()>0) //poszukiwanie miejsca przed procesem o wyzszym priorytecie
 		{
@@ -99,7 +99,7 @@ public class Scheduler {
 	}
 	
 	//Metoda przeliczajaca priorytet
-	public boolean przelicz()  
+	public void przelicz()  
 	{
 		ArrayList<ArrayList<PCB>> tmp_qs = new ArrayList<ArrayList<PCB>>(8); //tymczasowa kolejka procesow gotowych
 		//Output.write("Przeliczanie priorytetow");
@@ -143,10 +143,7 @@ public class Scheduler {
 		
 		for(int i=0;i<7;i++) //aktualizacja tablicy wskazujacej na niepuste kolejki
 		{
-			if(qs.get(i).size()>0)
-				whichqs[i] = true;
-			else
-				whichqs[i] = false;
+                    whichqs[i] = qs.get(i).size()>0;
 		}
 		
 		int first_not_empty=8;
@@ -158,13 +155,13 @@ public class Scheduler {
 				break;
 			}
 		}
-		if(first_not_empty != 8 && qs.get(first_not_empty).get(0).priority<pr_rdy.priority) 
-		{ //Wywlaszczenie jesli odnaleziony proces ma wyzszy priorytet niz proces aktualny
+		//if(first_not_empty != 8 && qs.get(first_not_empty).get(0).priority<pr_rdy.priority) 
+		//{ //Wywlaszczenie jesli odnaleziony proces ma wyzszy priorytet niz proces aktualny
 			//Output.write("Znaleziono proces o wyzszym priorytecie. Wykonywanie wywlaszczenia.");
-			return true;
-		}
-		else
-			return false;
+			//return true;
+		//}
+		
+			//return false;
 	}
 	
 	//Metoda zmieniajaca kontekst

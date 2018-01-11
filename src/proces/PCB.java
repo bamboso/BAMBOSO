@@ -7,7 +7,9 @@ package proces;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
-
+import Scheduler.Scheduler;
+import Komunikacja_Miedzyprocesowa.Pipe;
+import Komunikacja_Miedzyprocesowa.IPC;
 /**
  *
  * @author Adrian
@@ -19,8 +21,13 @@ public class PCB {
     public int uspri;
     public int A=0, B=0, C=0, D=0;
     public int commandCounter=0;
+    public int pri; //P
     public int nice; //P parametr nadawany przez uzytkownika
     public int cpu; //P wykorzystanie procesora
+    public int pRA;  //P
+    public int pRB;  //P
+    public int pPC;  //P
+    public boolean pZF;  //P
     
     public int state;//1-new, 2-ready,3-waiting,4-running,5-finished
     public PCB parent=null;
@@ -29,10 +36,15 @@ public class PCB {
     //struct files_struct files; /* list of open files */ 
     //struct mm_struct mm; /* address space of this process */
     
+    public ArrayList<Pipe> pipes = new ArrayList<>();
+    public IPC childPipe = null;
+    
     public PCB(String pid){
         this.pid=pid;
         proceses.add(this);
-        priority=0;
+        priority=8;
+        state=0;
+	uspri = 0; //P
     }
      public void fork(String PID){ //Tworzenie procesu
          boolean x=true;
@@ -46,6 +58,12 @@ public class PCB {
          child.parent=this;
          child.state=1;
          children.add(child);
+         uspri = nice; //P
+	child.priority = 0; //P
+	pRA = child.pRA;
+	pRB = child.pRB;
+	pPC = child.pPC;
+	pZF = child.pZF;
         //proceses.add(child);
         System.out.println("stworzono proces o ID:"+child.pid);
          }
@@ -83,7 +101,8 @@ public class PCB {
      }
      public void showproceses(){
         for(int i=1;i<proceses.size();i++){
-            System.out.print("proces PID:"+proceses.get(i).pid+" stan:");
+            System.out.print("proces PID:"+proceses.get(i).pid);
+            System.out.print(proceses.get(i).priority+" priorytet:");
             if(proceses.get(i).state==1){
                 System.out.println("nowy");
             }

@@ -1,14 +1,13 @@
 package Komunikacja_Miedzyprocesowa;
 
-import Komunikacja_Miedzyprocesowa.Pipe;
-import java.util.Vector;
 
+import java.util.Vector;
+import proces.PCB;
 /**
  *
  * @author Olga Kryspin
  */
 public class IPC {
-
     private Vector<Pipe> pipes; //wszystkie istniejące łącza w systemie
 
     private int open(Pipe pipe, char sign) // otwiera w trybie:.. 
@@ -48,8 +47,9 @@ public class IPC {
 
     public int closepipe(int des) //inaczej niż w prezentacji, ale jeszcze niepewne
     {
-        pipes.remove(des);
         this.close(pipes.elementAt(des));
+        pipes.remove(des);
+        
         return 1;
     }
     /////////////////////////////////////////////////////////
@@ -71,6 +71,8 @@ public class IPC {
     //5. zwracam faktyczną liczbę zapisanych danych 
     public int write(int rozmiar, String komunikat, String pn, int des) {
         boolean exists = false;
+        
+        
         for (int i = 0; i < pipes.size(); i++) {
             if (pipes.get(i).pn.equals(pn)) {
                 exists = true;
@@ -81,6 +83,7 @@ public class IPC {
             System.out.println("Takie lacze nie istnieje!");
             return -1;
         }
+        
         //sprawdzam czy procesy są spokrewnione 
         //... jeżeli tak to dalej jezeli nie to :
         //  System.out.println("Procesy nie sa spokrewnione!");
@@ -114,8 +117,10 @@ public class IPC {
     //-ustawiam pola occupied bytes i free bytes i pn 
     //4. zwracam faktyczną liczbę odczytanych danych 
 
-    int read(String bufor, int count, String pn) {
+    String read(int count, String pn) {
         boolean exists = false;
+       String bufor;
+        
         for (int i = 0; i < pipes.size(); i++) {
             if (pipes.get(i).pn.equals(pn)) {
                 exists = true;
@@ -124,7 +129,7 @@ public class IPC {
 
         if (exists == false) {
             System.out.println("Takie lacze nie istnieje!");
-            return -1;
+            return "-1";
         }
 
         int des = 0;
@@ -141,17 +146,17 @@ public class IPC {
             bufor = pipes.get(des).Dane.substring(0, count - 1);
             pipes.get(des).free_bytes += bufor.length();
 
-            return pipes.get(des).occupied_bytes;
+            return bufor;
         } else if (count < pipes.get(des).occupied_bytes) {
-            String kom;
-            kom = pipes.get(des).Dane.substring(0, count);
+            
+            bufor = pipes.get(des).Dane.substring(0, count);
             //zwraca tylko czesc stringa 
             // String partData = pipes.get(des).Dane.
-            pipes.get(des).free_bytes += kom.length();
-            return kom.length();
+            pipes.get(des).free_bytes += bufor.length();
+            return bufor;
         } else {
             System.out.println("funkcja read - blad!");
-            return -1;
+            return "-1";
         }
 
     }

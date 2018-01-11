@@ -10,15 +10,20 @@ import SynchronizacjaProcesów.SynchronizacjaProcesów;
 import MemoryManagment.MemoryManagment;
 import Interpreter.Interpreter;
 import MemoryManagment.ExchangeFile;
+import java.io.FileNotFoundException;
+import java.util.HashMap;
 
 
 public class Main {
  
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FileNotFoundException {
         // TODO Auto-generated method stub
-        PCB proc = new PCB("");
+        
+        
         MemoryManagment mm = new MemoryManagment();
+        PCB proc = new PCB("P0",mm);
         FileSystem dupa = new FileSystem();
+        Interpreter a = new Interpreter(mm, dupa, proc);
         String string;
         do {
             System.out.println("command: ");
@@ -126,6 +131,7 @@ public class Main {
                     System.out.println("GO: kolejny krok wykonywanego procesu; ");
                     System.out.println("START nazwa_procesu nazwa_istniejacego_procesu: stworzenie procesu; ");
                     
+                    
                    
                 }else
                     System.out.println("nieprawidlowe wywolanie komendy");
@@ -136,7 +142,7 @@ public class Main {
             {
                 if(tab.length==1) {
                     //funkcja pokazująca stan pamięci
-                    mm.getCurrentRAM();
+                    System.out.println(mm.getCurrentRAM());
                    // System.out.println("stan pamieci");
                
                    
@@ -200,7 +206,10 @@ public class Main {
                    
                     //stan procesu po wykonaniu jednego kroku - od interpretera
                     System.out.println("kolejny krok w procesie");
-               
+                   
+                    String test = a.getProgram(proc.working());
+                    proc.showproceses();
+                    a.work(test, a.labels );
                    
                 }
                 else
@@ -211,7 +220,7 @@ public class Main {
            
             else if(tab[0].equals("START"))   //////////////////////////////////////////////////////////////////tworzenie procesu
             {
-                if(tab.length==3) {
+                if(tab.length==4) {
                     /*
                      tab[1] nazwa procesu
                      tab[2] istniejący proces
@@ -219,18 +228,30 @@ public class Main {
                      */
                    
                     //tworzenie procesu
-                    proc.getproces((tab[2])).fork(tab[1]);
+                    proc.getproces(tab[2]).fork(tab[1],tab[3]);
+                    
                     System.out.println("tworzenie procesu");
                
                 }else
                     System.out.println("nieprawidlowe wywolanie komendy");
             }
-            else
-                if(!tab[0].equals("exit"))
+            
+            else if(tab[0].equals("CHG"))   /////////////////////////////////////////////////////////////////////kolejny krok w procesie
+            {
+                if(tab.length==3) {
+                    //1 - NAZWA PROCESU
+                    //2 - STAN
+                    //stan procesu po wykonaniu jednego kroku - od interpretera
+                    proc.getproces(tab[1]).setstate(Integer.parseInt(tab[2]));
+                   System.out.println(proc.getproces(tab[1]).state);
+                }
+                else
+                    System.out.println("nieprawidlowe wywolanie komendy");
+            }
+           else if(!tab[0].equals("exit"))
             {
                 System.out.println("NIEPOPRAWNA KOMENDA ZIOMUS");
             }
-           
         }while(!string.equals("exit"));
            
        

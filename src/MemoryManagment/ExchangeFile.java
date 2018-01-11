@@ -1,15 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package MemoryManagment;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.util.*;
 
 public class ExchangeFile {
     private List<String> exchangeFile = new ArrayList<>();
@@ -40,7 +33,14 @@ public class ExchangeFile {
         return positionInExchangeFile;
     }
 
-    public void setProcess(String processName, String program) {
+    public void setProcess(String processName, String filePath) throws FileNotFoundException {
+        Scanner in = new Scanner(new FileReader(filePath + ".txt"));
+        StringBuilder sb = new StringBuilder();
+        while(in.hasNext()) {
+            sb.append(in.next() + " ");
+        }
+        in.close();
+        String program = sb.toString();
         int lastPageBytes = program.length() % 16;
         if (lastPageBytes != 0) {
             for (int i = 0; i < 16 - lastPageBytes; i++) {

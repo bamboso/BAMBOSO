@@ -23,14 +23,13 @@ import Scheduler.Scheduler;
 
 import java.util.HashMap;
 import java.util.ArrayList;
-
 public class Interpreter {
 
 	// Labels for JM commands is saved in:
-	private HashMap<String, Integer> labels;
+	public HashMap<String, Integer> labels;
 
 	// counter to read from memory
-	private int commandCounter;
+	private int commandCounter=0;
 
 	// other counter not matter - too many explain
 	private int otherCounter;
@@ -43,9 +42,9 @@ public class Interpreter {
 	static int PC;
 	static boolean ZF;
 	static int  CPU;
-	private PCB PCBbox;
         private Proces proces;
 	private MemoryManagment RAM;
+	public PCB PCBbox;
 	private FileSystem fileSystem;
 
         public static boolean shutdown = false;
@@ -77,9 +76,10 @@ public class Interpreter {
                 scheduler = new Scheduler();
 		labels = new HashMap<String, Integer>();
 
-		 PCBbox = new PCB("p0");
+		 //PCBbox = new PCB("p0");
 		 this.RAM = RAM;
 		 this.fileSystem = fileSystem;
+		 this.PCBbox = PCBbox;
 		 
 		commandCounter = 0;
 		otherCounter = 0;
@@ -133,13 +133,13 @@ public class Interpreter {
 	private int getValue(String param1) {
 		switch (param1) {
 		case "A":
-			return A;
+			return PCBbox.getproces(PCBbox.working()).A;
 		case "B":
-			return B;
+			return PCBbox.getproces(PCBbox.working()).B;
 		case "C":
-			return PCBbox.C;
+			return PCBbox.getproces(PCBbox.working()).C;
 		case "D":
-			return PCBbox.D;
+			return PCBbox.getproces(PCBbox.working()).D;
 		}
 		return 0;
 	}
@@ -147,16 +147,16 @@ public class Interpreter {
 	private int setValue(String param1, int value) {
 		switch (param1) {
 		case "A":
-			A = value;
+			PCBbox.getproces(PCBbox.working()).A = value;
 			break;
 		case "B":
-			B = value;
+			PCBbox.getproces(PCBbox.working()).B = value;
 			break;
 		case "C":
-			PCBbox.C = value;
+			PCBbox.getproces(PCBbox.working()).C = value;
 			break;
 		case "D":
-			PCBbox.D = value;
+			PCBbox.getproces(PCBbox.working()).D = value;
 			break;
 		case "PCBbox.A":
 			PCBbox.A = value;
@@ -186,23 +186,30 @@ public class Interpreter {
 		}
 	}
 
-	private String getProgram(String procesName) {
+	public String getProgram(String procesName) {
 		char znak;
 		String program = "";
 
+		int i =0;
 		while (true) {
 			// Load char from RAM
-			String x = PCBbox.getproces(procesName).getpid(); //getpid() id aktualnie wykonywanego procesu
-                        
-			znak = RAM.getCommandChar(commandCounter, x);
+			//String x = PCBbox.getproces(procesName).getpid(); //getpid() id aktualnie wykonywanego procesu
+            commandCounter=PCBbox.getproces(procesName).commandCounter;           
+			znak = RAM.getCommandChar(commandCounter, procesName);
 
-			program += znak;
-
-			commandCounter++;
-
-			if (znak == '\n') {
+				PCBbox.getproces(procesName).commandCounter++;
+		
+			
+			if(znak == ' ' && i ==1) {
+				program+="\n";
 				break;
+			} else if (znak == ' ' && i == 0) {
+				program += znak;
+				i++;
+			} else {
+				program += znak;
 			}
+			
 		}
 		return program;
 	}
@@ -313,6 +320,7 @@ public class Interpreter {
 
 		case "ST": // -- Zatrzymanie procesu
 			PCBbox.getproces(param1).setstate(3);
+			
 			break;
 
 		case "CF": // -- Create file

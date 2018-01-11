@@ -1,0 +1,6 @@
+CF arytmetykaPlik
+MV A,11
+MV B,90
+AD A,B
+WF arytmetykaPlik,11+90=
+WR arytmetykaPlik,A

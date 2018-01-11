@@ -1,14 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package MemoryManagment;
 
-/**
- *
- * @author Olga Kryspin
- */
+import java.io.FileNotFoundException;
+
 public class MemoryManagment {
 
     public ExchangeFile exchangeFile;
@@ -17,7 +10,7 @@ public class MemoryManagment {
     private int pageLifeTime[] = new int[8];
     private String framesProcessesNames[] = new String[8];
 
-    public MemoryManagment() {
+  public  MemoryManagment() {
         exchangeFile = new ExchangeFile();
         clearPageLifeTime();
         clearRAM();
@@ -42,8 +35,8 @@ public class MemoryManagment {
         return LRU;
     }
 
-    public void addProcess(String processName, String program) {
-        exchangeFile.setProcess(processName, program);
+    public void addProcess(String processName, String filePath) throws FileNotFoundException {
+        exchangeFile.setProcess(processName, filePath);
     }
 
     private void changeLRU(int framePosition) {
@@ -93,7 +86,7 @@ public class MemoryManagment {
         }
     }
 
-    public void writeToProcess(String processName, int position, char letter) {
+    public void writeToRAM(String processName, int position, char letter) {
 
     }
 
@@ -112,5 +105,6 @@ public class MemoryManagment {
         }
         return currentRAM;
     }
+
 
 }

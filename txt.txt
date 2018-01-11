@@ -1,0 +1,6 @@
+CF arytmetykaPlik
+MV A,3
+MV B,6
+AD A,B
+WF arytmetykaPlik,Wynik3+6=
+WR arytmetykaPlik,A

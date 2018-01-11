@@ -6,9 +6,8 @@
 package SynchronizacjaProcesów;
 
 /**
- *
  * @author Ja
  */
 public class Lock {
-    public Boolean lock=false;
+    public Boolean lock = false;
 }

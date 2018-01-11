@@ -7,7 +7,9 @@ package Interpreter;
 
 import fileSystem.FileSystem;
 import fileSystem.File;
+
 import java.util.Scanner;
+
 import proces.PCB;
 import proces.Proces;
 import Komunikacja_Miedzyprocesowa.Pipe;
@@ -23,263 +25,260 @@ import Scheduler.Scheduler;
 
 import java.util.HashMap;
 import java.util.ArrayList;
+
 public class Interpreter {
 
-	// Labels for JM commands is saved in:
-	public HashMap<String, Integer> labels;
+    // Labels for JM commands is saved in:
+    public HashMap<String, Integer> labels;
 
-	// counter to read from memory
-	private int commandCounter=0;
+    // counter to read from memory
+    private int commandCounter = 0;
 
-	// other counter not matter - too many explain
-	private int otherCounter;
+    // other counter not matter - too many explain
+    private int otherCounter;
 
-        
-	// Create Box for PCB
-	// private PCB PCBbox;
-        static int RA;
-	static int RB;
-	static int PC;
-	static boolean ZF;
-	static int  CPU;
-        private Proces proces;
-	private MemoryManagment RAM;
-	public PCB PCBbox;
-	private FileSystem fileSystem;
 
-        public static boolean shutdown = false;
-	boolean exit = false;
-	public static boolean test = false;
-	private int wynik;
-	private int  przelicz;
-	private String Decision;
-	private String tmp;
-	boolean brak_stronicy = false;
-	boolean wt = false;
-	
-	private static Scheduler scheduler;
-	// private ProcessesManagement processesManagment;
+    // Create Box for PCB
+    // private PCB PCBbox;
+    static int RA;
+    static int RB;
+    static int PC;
+    static boolean ZF;
+    static int CPU;
+    private Proces proces;
+    private MemoryManagment RAM;
+    public PCB PCBbox;
+    private FileSystem fileSystem;
 
-	private ArrayList<String> rejestry;
+    public static boolean shutdown = false;
+    boolean exit = false;
+    public static boolean test = false;
+    private int wynik;
+    private int przelicz;
+    private String Decision;
+    private String tmp;
+    boolean brak_stronicy = false;
+    boolean wt = false;
 
-	private ArrayList<String> rozkazy;
+    private static Scheduler scheduler;
+    // private ProcessesManagement processesManagment;
 
-	private boolean manySpace = false;
+    private ArrayList<String> rejestry;
 
-	private boolean found = false;
+    private ArrayList<String> rozkazy;
 
-	private int stan = 0; // command = 0, param1 = 1; param2 = 2;
+    private boolean manySpace = false;
 
-	public Interpreter(MemoryManagment RAM, FileSystem fileSystem, PCB PCBbox)
+    private boolean found = false;
 
-	{
-                scheduler = new Scheduler();
-		labels = new HashMap<String, Integer>();
+    private int stan = 0; // command = 0, param1 = 1; param2 = 2;
 
-		 //PCBbox = new PCB("p0");
-		 this.RAM = RAM;
-		 this.fileSystem = fileSystem;
-		 this.PCBbox = PCBbox;
-		 
-		commandCounter = 0;
-		otherCounter = 0;
+    public Interpreter(MemoryManagment RAM, FileSystem fileSystem, PCB PCBbox)
 
-		rejestry = new ArrayList<String>();
-		rozkazy = new ArrayList<String>();
-		// [*] USTALONE ROZKAZY [*] //
+    {
+        scheduler = new Scheduler();
+        labels = new HashMap<String, Integer>();
 
-		// ROZKAZY ARYTMETYCZNE DWUARGUMENTOWE
-		rozkazy.add("AD"); // String Register + String Register/int Number
-		rozkazy.add("SB"); // String Register - String Register/int Number
-		rozkazy.add("MU"); // String Register * String Register/int Number
-		rozkazy.add("MV"); // String Register <- String Register/int Number
-                
-		// ROZKAZY DWUARGUMENTOWE
-		rozkazy.add("CP"); // String processName, String fileName
-		rozkazy.add("SC"); // String processName, String communicate
-		rozkazy.add("WF"); // String FileName, String Content
-		rozkazy.add("WR"); // String FileName, String Register
-                
+        //PCBbox = new PCB("p0");
+        this.RAM = RAM;
+        this.fileSystem = fileSystem;
+        this.PCBbox = PCBbox;
 
-		// ROZKAZY JEDNOARGUMENTOWE
-		rozkazy.add("DP"); // String processName
-		rozkazy.add("RP"); // String processName
-		rozkazy.add("ST"); // String processName
-		rozkazy.add("JM"); // String label
-		rozkazy.add("JN"); // String Address
-		rozkazy.add("CF"); // String Name
-		rozkazy.add("DF"); // String name
-		rozkazy.add("RF");
+        commandCounter = 0;
+        otherCounter = 0;
 
-		// ROZKAZY BEZARGUMENTOWE
+        rejestry = new ArrayList<String>();
+        rozkazy = new ArrayList<String>();
+        // [*] USTALONE ROZKAZY [*] //
 
-		rozkazy.add("RC"); // Czytanie komunikatu
-		rozkazy.add("HT"); // END PROGRAM
+        // ROZKAZY ARYTMETYCZNE DWUARGUMENTOWE
+        rozkazy.add("AD"); // String Register + String Register/int Number
+        rozkazy.add("SB"); // String Register - String Register/int Number
+        rozkazy.add("MU"); // String Register * String Register/int Number
+        rozkazy.add("MV"); // String Register <- String Register/int Number
 
-		// [*] USTALONE REJESTRY [*] //
-		rejestry.add("A");
-		rejestry.add("B");
-		rejestry.add("C");
-		rejestry.add("D");
+        // ROZKAZY DWUARGUMENTOWE
+        rozkazy.add("CP"); // String processName, String fileName
+        rozkazy.add("SC"); // String processName, String communicate
+        rozkazy.add("WF"); // String FileName, String Content
+        rozkazy.add("WR"); // String FileName, String Register
 
-		manySpace = false;
-		found = false;
-		stan = 0; // command = 0, param1 = 1; param2 = 2
-	}
 
-        // podpiecie rejestrow do pcb
-        public int A=0, B=0, C=0, D=0;
-        
-	private int getValue(String param1) {
-		switch (param1) {
-		case "A":
-			return PCBbox.getproces(PCBbox.working()).A;
-		case "B":
-			return PCBbox.getproces(PCBbox.working()).B;
-		case "C":
-			return PCBbox.getproces(PCBbox.working()).C;
-		case "D":
-			return PCBbox.getproces(PCBbox.working()).D;
-		}
-		return 0;
-	}
+        // ROZKAZY JEDNOARGUMENTOWE
+        rozkazy.add("DP"); // String processName
+        rozkazy.add("RP"); // String processName
+        rozkazy.add("ST"); // String processName
+        rozkazy.add("JM"); // String label
+        rozkazy.add("JN"); // String Address
+        rozkazy.add("CF"); // String Name
+        rozkazy.add("DF"); // String name
+        rozkazy.add("RF");
 
-	private int setValue(String param1, int value) {
-		switch (param1) {
-		case "A":
-			PCBbox.getproces(PCBbox.working()).A = value;
-			break;
-		case "B":
-			PCBbox.getproces(PCBbox.working()).B = value;
-			break;
-		case "C":
-			PCBbox.getproces(PCBbox.working()).C = value;
-			break;
-		case "D":
-			PCBbox.getproces(PCBbox.working()).D = value;
-			break;
-		case "PCBbox.A":
-			PCBbox.A = value;
-			break;
-		case "PCBbox.B":
-			PCBbox.B = value;
-			break;
-		case "PCBbox.C":
-			PCBbox.C = value;
-			break;
-		case "PCBbox.D":
-			PCBbox.D = value;
-			break;
-		case "PCBbox.commandCounter":
-			PCBbox.commandCounter = commandCounter;
-			break;
-		}
-		return 0;
-	}
+        // ROZKAZY BEZARGUMENTOWE
 
-	// Checking: Is command is the label?
-	private boolean isLabel(StringBuilder command) {
-		if (command.length() > 0 && command.charAt(command.length() - 1) == ':') {
-			return true;
-		} else {
-			return false;
-		}
-	}
+        rozkazy.add("RC"); // Czytanie komunikatu
+        rozkazy.add("HT"); // END PROGRAM
 
-	public String getProgram(String procesName) {
-		char znak;
-		String program = "";
+        // [*] USTALONE REJESTRY [*] //
+        rejestry.add("A");
+        rejestry.add("B");
+        rejestry.add("C");
+        rejestry.add("D");
 
-		int i =0;
-		while (true) {
-			// Load char from RAM
-			//String x = PCBbox.getproces(procesName).getpid(); //getpid() id aktualnie wykonywanego procesu
-            commandCounter=PCBbox.getproces(procesName).commandCounter;           
-			znak = RAM.getCommandChar(commandCounter, procesName);
+        manySpace = false;
+        found = false;
+        stan = 0; // command = 0, param1 = 1; param2 = 2
+    }
 
-				PCBbox.getproces(procesName).commandCounter++;
-		
-			
-			if(znak == ' ' && i ==1) {
-				program+="\n";
-				break;
-			} else if (znak == ' ' && i == 0) {
-				program += znak;
-				i++;
-			} else {
-				program += znak;
-			}
-			
-		}
-		return program;
-	}
+    // podpiecie rejestrow do pcb
+    public int A = 0, B = 0, C = 0, D = 0;
 
-	// Follow the recognized command
-	public void doCommand(String rozkaz, String param1, String param2, boolean argDrugiJestRejestrem,
-			HashMap<String, Integer> labels) {
-		switch (rozkaz) {
-		case "AD": // Dodawanie wartości
-			if (argDrugiJestRejestrem) {
-				setValue(param1, getValue(param1) + getValue(param2));
-			} else {
-				setValue(param1, getValue(param1) + Integer.parseInt(param2));
-			}
-			break;
+    private int getValue(String param1) {
+        switch (param1) {
+            case "A":
+                return PCBbox.getproces(PCBbox.working()).A;
+            case "B":
+                return PCBbox.getproces(PCBbox.working()).B;
+            case "C":
+                return PCBbox.getproces(PCBbox.working()).C;
+            case "D":
+                return PCBbox.getproces(PCBbox.working()).D;
+        }
+        return 0;
+    }
 
-		case "MU": // Mnożenie wartości
-			if (argDrugiJestRejestrem) {
-				setValue(param1, getValue(param1) * getValue(param2));
-			} else {
-				setValue(param1, getValue(param1) * Integer.parseInt(param2));
-			}
-			break;
+    private int setValue(String param1, int value) {
+        switch (param1) {
+            case "A":
+                PCBbox.getproces(PCBbox.working()).A = value;
+                break;
+            case "B":
+                PCBbox.getproces(PCBbox.working()).B = value;
+                break;
+            case "C":
+                PCBbox.getproces(PCBbox.working()).C = value;
+                break;
+            case "D":
+                PCBbox.getproces(PCBbox.working()).D = value;
+                break;
+            case "PCBbox.A":
+                PCBbox.A = value;
+                break;
+            case "PCBbox.B":
+                PCBbox.B = value;
+                break;
+            case "PCBbox.C":
+                PCBbox.C = value;
+                break;
+            case "PCBbox.D":
+                PCBbox.D = value;
+                break;
+            case "PCBbox.commandCounter":
+                PCBbox.commandCounter = commandCounter;
+                break;
+        }
+        return 0;
+    }
 
-		case "SB": // Odejmowanie wartości
-			if (argDrugiJestRejestrem) {
-				setValue(param1, getValue(param1) - getValue(param2));
-			} else {
-				setValue(param1, getValue(param1) - Integer.parseInt(param2));
-			}
-			break;
+    // Checking: Is command is the label?
+    private boolean isLabel(StringBuilder command) {
+        return command.length() > 0 && command.charAt(command.length() - 1) == ':';
+    }
 
-		case "MV": // kopiuje rejestr do rejestru, lub liczba
-			if (argDrugiJestRejestrem) {
-				setValue(param1, getValue(param2));
-			} else {
-				setValue(param1, Integer.parseInt(param2));
-			}
-			break;
+    public String getProgram(String procesName) {
+        char znak;
+        String program = "";
 
-		case "JM": // Skok do etykiety JM
-			if (labels.containsKey(param1) && getValue("C") != 0) {
+        int i = 0;
+        while (true) {
+            // Load char from RAM
+            //String x = PCBbox.getproces(procesName).getpid(); //getpid() id aktualnie wykonywanego procesu
+            commandCounter = PCBbox.getproces(procesName).commandCounter;
+            znak = RAM.getCommandChar(commandCounter, procesName);
 
-				// setValue("C", labels.get(param1));
-				setValue("C", getValue("C") - 1);
-				commandCounter = labels.get(param1);
-			}
-			break;
+            PCBbox.getproces(procesName).commandCounter++;
 
-		case "JN": // Skok do adresu
 
-			break;
-                
-                        
-		case "HT": // Koniec programu
+            if (znak == ' ' && i == 1) {
+                program += "\n";
+                break;
+            } else if (znak == ' ' && i == 0) {
+                program += znak;
+                i++;
+            } else {
+                program += znak;
+            }
 
-			//ProcessorManager.RUNNING.SetState(4);
-			break;
+        }
+        return program;
+    }
 
-		case "RC": // czytanie komunikatu;
+    // Follow the recognized command
+    public void doCommand(String rozkaz, String param1, String param2, boolean argDrugiJestRejestrem,
+                          HashMap<String, Integer> labels) {
+        switch (rozkaz) {
+            case "AD": // Dodawanie wartości
+                if (argDrugiJestRejestrem) {
+                    setValue(param1, getValue(param1) + getValue(param2));
+                } else {
+                    setValue(param1, getValue(param1) + Integer.parseInt(param2));
+                }
+                break;
 
-			//String received = Communication.read(ProcessorManager.RUNNING.GetName());
-			//ProcessorManager.RUNNING.pcb.receivedMsg = received;
-			//fileSystem.createEmptyFile(ProcessorManager.RUNNING.GetName());
-			//fileSystem.appendToFile(ProcessorManager.RUNNING.GetName(), received);
-			break;
+            case "MU": // Mnożenie wartości
+                if (argDrugiJestRejestrem) {
+                    setValue(param1, getValue(param1) * getValue(param2));
+                } else {
+                    setValue(param1, getValue(param1) * Integer.parseInt(param2));
+                }
+                break;
 
-		case "SC": // -- Wysłanie komunikatu;
-			//Communication.write(param1, param2);
-			break;
+            case "SB": // Odejmowanie wartości
+                if (argDrugiJestRejestrem) {
+                    setValue(param1, getValue(param1) - getValue(param2));
+                } else {
+                    setValue(param1, getValue(param1) - Integer.parseInt(param2));
+                }
+                break;
+
+            case "MV": // kopiuje rejestr do rejestru, lub liczba
+                if (argDrugiJestRejestrem) {
+                    setValue(param1, getValue(param2));
+                } else {
+                    setValue(param1, Integer.parseInt(param2));
+                }
+                break;
+
+            case "JM": // Skok do etykiety JM
+                if (labels.containsKey(param1) && getValue("C") != 0) {
+
+                    // setValue("C", labels.get(param1));
+                    setValue("C", getValue("C") - 1);
+                    commandCounter = labels.get(param1);
+                }
+                break;
+
+            case "JN": // Skok do adresu
+
+                break;
+
+
+            case "HT": // Koniec programu
+
+                //ProcessorManager.RUNNING.SetState(4);
+                break;
+
+            case "RC": // czytanie komunikatu;
+
+                //String received = Communication.read(ProcessorManager.RUNNING.GetName());
+                //ProcessorManager.RUNNING.pcb.receivedMsg = received;
+                //fileSystem.createEmptyFile(ProcessorManager.RUNNING.GetName());
+                //fileSystem.appendToFile(ProcessorManager.RUNNING.GetName(), received);
+                break;
+
+            case "SC": // -- Wysłanie komunikatu;
+                //Communication.write(param1, param2);
+                break;
 /*
 		case "CP": {// -- tworzenie procesu (param1);
 			File file = new File(param2);
@@ -305,126 +304,126 @@ public class Interpreter {
 			break;
 		}
 */
-		case "RP": // -- Uruchomienie procesu
+            case "RP": // -- Uruchomienie procesu
 
-			PCBbox.getproces(param1).setstate(4);
-			//PCBbox.getproces(param1).setpriority(ProcessorManager.MAX_PRIORITY + 1);
+                PCBbox.getproces(param1).setstate(4);
+                //PCBbox.getproces(param1).setpriority(ProcessorManager.MAX_PRIORITY + 1);
 
-			break;
+                break;
 
-		case "DP": // -- usuwanie procesu (param1);
+            case "DP": // -- usuwanie procesu (param1);
 
-			PCBbox.getproces(param1).setstate(5);
-			PCBbox.getproces(param1).exit();
-			break;
+                PCBbox.getproces(param1).setstate(5);
+                PCBbox.getproces(param1).exit();
+                break;
 
-		case "ST": // -- Zatrzymanie procesu
-			PCBbox.getproces(param1).setstate(3);
-			
-			break;
+            case "ST": // -- Zatrzymanie procesu
+                PCBbox.getproces(param1).setstate(3);
 
-		case "CF": // -- Create file
-			fileSystem.createFileWithContent(param1, param2);
-			break;
+                break;
 
-		case "DF": // -- Delete file
-			fileSystem.deleteFile(param1);
-			break;
+            case "CF": // -- Create file
+                fileSystem.createFileWithContent(param1, param2);
+                break;
 
-		case "RF": // -- Print Output
-			//System.out.println(fileSystem.getFileContent(param1));
-                        fileSystem.getFileContent(param1);
-			break;
+            case "DF": // -- Delete file
+                fileSystem.deleteFile(param1);
+                break;
 
-		case "WF": // dodaj do pliku
-			fileSystem.appendToFile(param1, param2);
-			break;
+            case "RF": // -- Print Output
+                //System.out.println(fileSystem.getFileContent(param1));
+                fileSystem.getFileContent(param1);
+                break;
 
-		case "WR":
-			fileSystem.appendToFile(param1, Integer.toString(getValue(param2)));
-			break;
+            case "WF": // dodaj do pliku
+                fileSystem.appendToFile(param1, param2);
+                break;
 
-		}
-	}
+            case "WR":
+                fileSystem.appendToFile(param1, Integer.toString(getValue(param2)));
+                break;
 
-        //testy
-        
-        
-	public void work(String program, HashMap<String, Integer> labels) {
-		StringBuilder command = new StringBuilder();
-		StringBuilder param1 = new StringBuilder();
-		StringBuilder param2 = new StringBuilder();
+        }
+    }
 
-		for (Character c : program.toCharArray()) {
-			if (c == '\n') {
-				otherCounter++;
-				stan = 0;
-				found = false;
+    //testy
 
-				//System.out.println(command.toString() + " " + param1.toString() + " " + param1.toString()
-						//+ " executor: " + ProcessorManager.RUNNING.GetName());
 
-				boolean rozkazToEtykieta = isLabel(command);
-				boolean poprawnoscRejestru = rejestry.contains(param1.toString());
-				boolean poprawnoscRozkazu = rozkazy.contains(command.toString());
-				boolean argDrugiJestRejestrem = rejestry.contains(param2.toString());
+    public void work(String program, HashMap<String, Integer> labels) {
+        StringBuilder command = new StringBuilder();
+        StringBuilder param1 = new StringBuilder();
+        StringBuilder param2 = new StringBuilder();
 
-				if (rozkazToEtykieta) {
-					String temp = "";
-					for (Character z : (command.toString()).toCharArray()) {
-						if (z != ':') {
-							temp += z;
-						} else {
-							labels.put(temp, (otherCounter));
-						}
-					}
+        for (Character c : program.toCharArray()) {
+            if (c == '\n') {
+                otherCounter++;
+                stan = 0;
+                found = false;
 
-				} else if (poprawnoscRozkazu) {
-					doCommand(command.toString(), param1.toString(), param2.toString(), argDrugiJestRejestrem, labels);
-				}
+                //System.out.println(command.toString() + " " + param1.toString() + " " + param1.toString()
+                //+ " executor: " + ProcessorManager.RUNNING.GetName());
 
-				command.delete(0, command.length());
-				param1.delete(0, param1.length());
-				param2.delete(0, param2.length());
-				continue;
-			}
+                boolean rozkazToEtykieta = isLabel(command);
+                boolean poprawnoscRejestru = rejestry.contains(param1.toString());
+                boolean poprawnoscRozkazu = rozkazy.contains(command.toString());
+                boolean argDrugiJestRejestrem = rejestry.contains(param2.toString());
 
-			if (c == ',') {
-				stan++;
-				otherCounter++;
-				found = true;
-				manySpace = true;
-				continue;
-			}
+                if (rozkazToEtykieta) {
+                    String temp = "";
+                    for (Character z : (command.toString()).toCharArray()) {
+                        if (z != ':') {
+                            temp += z;
+                        } else {
+                            labels.put(temp, (otherCounter));
+                        }
+                    }
 
-			if (c == ' ') {
-				otherCounter++;
-				if (stan == 1 && !found) {
-					continue;
-				}
-				if (manySpace) {
-					continue;
-				} else {
-					stan++;
-					manySpace = true;
-				}
-			}
+                } else if (poprawnoscRozkazu) {
+                    doCommand(command.toString(), param1.toString(), param2.toString(), argDrugiJestRejestrem, labels);
+                }
 
-			if (c != ' ') {
-				otherCounter++;
-				manySpace = false;
-				switch (stan) {
-				case 0:
-					command.append(c);
-					break;
-				case 1:
-					param1.append(c);
-					break;
-				case 2:
-					param2.append(c);
-					break;
-				}
-			}
-		}
-	}
+                command.delete(0, command.length());
+                param1.delete(0, param1.length());
+                param2.delete(0, param2.length());
+                continue;
+            }
+
+            if (c == ',') {
+                stan++;
+                otherCounter++;
+                found = true;
+                manySpace = true;
+                continue;
+            }
+
+            if (c == ' ') {
+                otherCounter++;
+                if (stan == 1 && !found) {
+                    continue;
+                }
+                if (manySpace) {
+                    continue;
+                } else {
+                    stan++;
+                    manySpace = true;
+                }
+            }
+
+            if (c != ' ') {
+                otherCounter++;
+                manySpace = false;
+                switch (stan) {
+                    case 0:
+                        command.append(c);
+                        break;
+                    case 1:
+                        param1.append(c);
+                        break;
+                    case 2:
+                        param2.append(c);
+                        break;
+                }
+            }
+        }
+    }
 }

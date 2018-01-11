@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package SynchronizacjaProcesów;
+
 import proces.Proces;
 
 public class SynchronizacjaProcesów {
@@ -46,7 +47,7 @@ public class SynchronizacjaProcesów {
     }
 
     public void wejsciedosekcjikrytycznej() throws InterruptedException {
-        System.out.println(nazwa+" weszlo do sekcji krytycznej");
+        System.out.println(nazwa + " weszlo do sekcji krytycznej");
         while (TestAndSet(lock.lock)) {
             //
             Thread.sleep(500);
@@ -57,53 +58,51 @@ public class SynchronizacjaProcesów {
     }
 
     public void wyjsciezsekcjikrytycznej() {
-        System.out.println(nazwa+" wyszlo z sekcji krytycznej");
+        System.out.println(nazwa + " wyszlo z sekcji krytycznej");
         lock.lock = false;
     }
 
     public int sumaN(int suma) {
         //System.out.println(proceszkolejkiprocesow);
-        suma=suma+1;
+        suma = suma + 1;
         return suma;
     }
+
     public int sumaM(int suma) {
-         suma=suma-1;
+        suma = suma - 1;
         return suma;
     }
 
     //public int getSuma() {
-        //return suma;
+    //return suma;
     //}
 
-    public static void main(String[] args) throws InterruptedException {
+//    public static void main(String[] args) throws InterruptedException {
+//
+//        int suma = 0;
+//
+//        Lock lock = new Lock();
+//        Proces jeden = new Proces();
+//        Proces dwa = new Proces();
+//
+//        SynchronizacjaProcesów S1=new SynchronizacjaProcesów("S1",jeden,lock);
+//        SynchronizacjaProcesów S2=new SynchronizacjaProcesów("S2",dwa,lock);
+//
+//
+//
+//        for (int i = 1; i <= 3; i++) {
+//            S1.wejsciedosekcjikrytycznej();
+//            suma = S1.sumaN(suma);
+//            System.out.println("s "+suma);
+//            S2.wejsciedosekcjikrytycznej();
+//            S1.wyjsciezsekcjikrytycznej();
+//            S2.wejsciedosekcjikrytycznej();
+//            suma = S2.sumaN(suma);
+//            System.out.println("s "+suma);
+//            S2.wyjsciezsekcjikrytycznej();
+//        }
 
-        int suma = 0;
-        
-        Lock lock = new Lock();
-        Proces jeden = new Proces();
-        Proces dwa = new Proces();
-        
-        SynchronizacjaProcesów S1=new SynchronizacjaProcesów("S1",jeden,lock);
-        SynchronizacjaProcesów S2=new SynchronizacjaProcesów("S2",dwa,lock);
-        
-        
-        
-        for (int i = 1; i <= 3; i++) {
-            S1.wejsciedosekcjikrytycznej();
-            suma = S1.sumaN(suma);
-            System.out.println("s "+suma);
-            S2.wejsciedosekcjikrytycznej();
-            S1.wyjsciezsekcjikrytycznej();
-            S2.wejsciedosekcjikrytycznej();
-            suma = S2.sumaN(suma);
-            System.out.println("s "+suma);
-            S2.wyjsciezsekcjikrytycznej();
-        }
 
-        
-        
-        
-        
-    }
+//    }
 
 }

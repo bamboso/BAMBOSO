@@ -9,7 +9,6 @@ public class ExchangeFile {
     private List<String> processesNames = new ArrayList<>();
     Map<String, int[]> whichPagesInRam = new HashMap<>();
 
-
     private int currentPage;
 
     public String getPage(String processName, int page) {
@@ -36,7 +35,7 @@ public class ExchangeFile {
     public void setProcess(String processName, String filePath) throws FileNotFoundException {
         Scanner in = new Scanner(new FileReader(filePath + ".txt"));
         StringBuilder sb = new StringBuilder();
-        while(in.hasNext()) {
+        while (in.hasNext()) {
             sb.append(in.next() + " ");
         }
         in.close();
@@ -47,8 +46,8 @@ public class ExchangeFile {
                 program += ' ';
             }
         }
-        for(int i = 0; i<processesNames.size(); i++) {
-            if(processesNames.get(i).equals(processName)) {
+        for (int i = 0; i < processesNames.size(); i++) {
+            if (processesNames.get(i).equals(processName)) {
                 exchangeFile.set(i, program);
 
             }
@@ -56,7 +55,7 @@ public class ExchangeFile {
         exchangeFile.add(0, program);
         processesNames.add(0, processName);
         int[] pagesInRam = new int[16];
-        for(int i = 0; i < 16; i++) {
+        for (int i = 0; i < 16; i++) {
             pagesInRam[i] = -1;
         }
         whichPagesInRam.put(processName, pagesInRam);
@@ -79,8 +78,8 @@ public class ExchangeFile {
     }
 
     public void removeFromRAM(String processName, int framePositionInRAM) {
-        for(int i = 0; i < 16; i++) {
-            if(whichPagesInRam.get(processName)[i] == framePositionInRAM && i != currentPage) {
+        for (int i = 0; i < 16; i++) {
+            if (whichPagesInRam.get(processName)[i] == framePositionInRAM && i != currentPage) {
                 whichPagesInRam.get(processName)[i] = -1;
             }
         }

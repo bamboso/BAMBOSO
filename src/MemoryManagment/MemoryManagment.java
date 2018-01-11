@@ -10,7 +10,7 @@ public class MemoryManagment {
     private int pageLifeTime[] = new int[8];
     private String framesProcessesNames[] = new String[8];
 
-  public  MemoryManagment() {
+    public MemoryManagment() {
         exchangeFile = new ExchangeFile();
         clearPageLifeTime();
         clearRAM();
@@ -86,24 +86,24 @@ public class MemoryManagment {
         }
     }
 
-    public void writeToRAM(String processName, int position, char letter) {
-
-    }
-
-    public String getCurrentLRU() {
+    public void getCurrentLRU() {
         String s = "";
         for (int i = 0; i < 8; i++) {
             s += pageLifeTime[i] + "  ";
         }
-        return s;
+        System.out.println(s);
     }
 
-    public String getCurrentRAM() {
-        String currentRAM = "";
-        for (int i = 0; i < 128; i++) {
-            currentRAM += ram[i];
+    public void getCurrentRAM() {
+        StringBuilder currentRAM = new StringBuilder();
+        for (int i = 0; i < 8; i++) {
+            currentRAM.append(i + ".");
+            for (int j = 0; j < 16; j++) {
+                currentRAM.append(ram[i * 16 + j]);
+            }
+            currentRAM.append("\n");
         }
-        return currentRAM;
+        System.out.println(currentRAM);
     }
 
 

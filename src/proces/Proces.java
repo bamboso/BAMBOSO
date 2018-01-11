@@ -6,7 +6,6 @@
 package proces;
 
 /**
- *
  * @author Adrian
  */
 public class Proces {
@@ -14,9 +13,9 @@ public class Proces {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
-        // TODO code application logic here
-        
+//    public static void main(String[] args) {
+//        // TODO code application logic here
+
 //    PCB er=new PCB("p0");
 //    System.out.println(er.proceses);
 //    er.fork("p2");
@@ -34,7 +33,7 @@ public class Proces {
 //    er.getproces("p3").exit();
 //for(int i=0; i<3; i++){
 //System.out.println("Kolejna komórka to: "+a.children.get(i).pid);
-   // }
+    // }
 //er.showproceses();
-    }
+//    }
 }

@@ -2,9 +2,10 @@ package Komunikacja_Miedzyprocesowa;
 
 
 import java.util.Vector;
+
 import proces.PCB;
+
 /**
- *
  * @author Olga Kryspin
  */
 public class IPC {
@@ -49,7 +50,7 @@ public class IPC {
     {
         this.close(pipes.elementAt(des));
         pipes.remove(des);
-        
+
         return 1;
     }
     /////////////////////////////////////////////////////////
@@ -71,8 +72,8 @@ public class IPC {
     //5. zwracam faktyczną liczbę zapisanych danych 
     public int write(int rozmiar, String komunikat, String pn, int des) {
         boolean exists = false;
-        
-        
+
+
         for (int i = 0; i < pipes.size(); i++) {
             if (pipes.get(i).pn.equals(pn)) {
                 exists = true;
@@ -83,7 +84,7 @@ public class IPC {
             System.out.println("Takie lacze nie istnieje!");
             return -1;
         }
-        
+
         //sprawdzam czy procesy są spokrewnione 
         //... jeżeli tak to dalej jezeli nie to :
         //  System.out.println("Procesy nie sa spokrewnione!");
@@ -119,8 +120,8 @@ public class IPC {
 
     String read(int count, String pn) {
         boolean exists = false;
-       String bufor;
-        
+        String bufor;
+
         for (int i = 0; i < pipes.size(); i++) {
             if (pipes.get(i).pn.equals(pn)) {
                 exists = true;
@@ -148,7 +149,7 @@ public class IPC {
 
             return bufor;
         } else if (count < pipes.get(des).occupied_bytes) {
-            
+
             bufor = pipes.get(des).Dane.substring(0, count);
             //zwraca tylko czesc stringa 
             // String partData = pipes.get(des).Dane.

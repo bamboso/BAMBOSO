@@ -113,14 +113,19 @@ public class PCB {
             switch (proceses.get(i).getState()) {
                 case 1:
                     System.out.println("nowy");
+                    break;
                 case 2:
                     System.out.println("gotowy");
+                    break;
                 case 3:
                     System.out.println("oczekujacy");
+                    break;
                 case 4:
                     System.out.println("wykonywany");
+                    break;
                 case 5:
                     System.out.println("skonczony");
+                    break;
             }
         }
     }

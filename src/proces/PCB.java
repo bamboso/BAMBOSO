@@ -48,7 +48,7 @@ public class PCB {
     public void fork(String PID, String file) throws FileNotFoundException { //Tworzenie procesu
         boolean x = true;
         for (int i = 0; i < proceses.size(); i++) {
-            if (proceses.get(i).pid == PID) {
+            if (proceses.get(i).getpid().equals(PID)) {
                 x = false;
             }
         }

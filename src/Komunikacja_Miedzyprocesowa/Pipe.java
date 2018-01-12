@@ -1,8 +1,9 @@
 
 package Komunikacja_Miedzyprocesowa;
+import SynchronizacjaProcesów.SynchronizacjaProcesów;
+import SynchronizacjaProcesów.Lock;
 //mechanizmy synchronizacji ?
-//potrzebuje zarządzania proceami.Proces ?? Jak wygląda
-//Interpreter.Output? (chyba od wyrzucania na konsole komunikatów)
+
 
 /**
  * @author Olga Kryspin

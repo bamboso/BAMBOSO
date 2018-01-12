@@ -70,7 +70,7 @@ public class IPC {
     //4. kończe zapis na końcu unlock
     //-ustawiam pola occupied bytes i free bytes i pn 
     //5. zwracam faktyczną liczbę zapisanych danych 
-    public int write(int rozmiar, String komunikat, String pn, int des) {
+    public int write(String komunikat, String pn, int des) {
         boolean exists = false;
 
 
@@ -86,6 +86,8 @@ public class IPC {
         }
 
         //sprawdzam czy procesy są spokrewnione 
+        //nie muszę sprawdzać bo wszystkie są .. 
+       
         //... jeżeli tak to dalej jezeli nie to :
         //  System.out.println("Procesy nie sa spokrewnione!");
         //  return -1;
@@ -116,9 +118,9 @@ public class IPC {
     // 2. czytam określoną liczbę znaków 
     // 3. 
     //-ustawiam pola occupied bytes i free bytes i pn 
-    //4. zwracam faktyczną liczbę odczytanych danych 
+    //4. zwracam komunikat
 
-    String read(int count, String pn) {
+   public String read(int count,String pn) {
         boolean exists = false;
         String bufor;
 
@@ -144,16 +146,18 @@ public class IPC {
         }
 
         if (count >= pipes.get(des).occupied_bytes) {
+            pipes.get(des).lock();
             bufor = pipes.get(des).Dane.substring(0, count - 1);
             pipes.get(des).free_bytes += bufor.length();
-
+             pipes.get(des).unlock();
             return bufor;
         } else if (count < pipes.get(des).occupied_bytes) {
-
+ pipes.get(des).lock();
             bufor = pipes.get(des).Dane.substring(0, count);
             //zwraca tylko czesc stringa 
             // String partData = pipes.get(des).Dane.
             pipes.get(des).free_bytes += bufor.length();
+             pipes.get(des).unlock();
             return bufor;
         } else {
             System.out.println("funkcja read - blad!");

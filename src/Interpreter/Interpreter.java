@@ -12,22 +12,21 @@ import java.util.Scanner;
 
 import proces.PCB;
 import proces.Proces;
-import Komunikacja_Miedzyprocesowa.Pipe;
+//import Komunikacja_Miedzyprocesowa.Pipe;
 import Komunikacja_Miedzyprocesowa.IPC;
 import SynchronizacjaProcesów.Lock;
 import SynchronizacjaProcesów.SynchronizacjaProcesów;
 import MemoryManagment.MemoryManagment;
 import Scheduler.Scheduler;
-/**
- *
- * @author Olga Kryspin
- */
+
 
 import java.util.HashMap;
 import java.util.ArrayList;
 
 public class Interpreter {
+    IPC pipes; 
 
+    //////////////////////////////////////////
     // Labels for JM commands is saved in:
     public HashMap<String, Integer> labels;
 
@@ -71,11 +70,12 @@ public class Interpreter {
 
     private boolean found = false;
 
-    private int stan = 0; // command = 0, param1 = 1; param2 = 2;
+    private int stan = 0; // command = 0, param1 = 1; param2 = 2;  //param3 = 3; ???? 
 
     public Interpreter(MemoryManagment RAM, FileSystem fileSystem, PCB PCBbox)
 
     {
+        pipes = new IPC();
         scheduler = new Scheduler();
         labels = new HashMap<String, Integer>();
 
@@ -99,10 +99,10 @@ public class Interpreter {
 
         // ROZKAZY DWUARGUMENTOWE
         rozkazy.add("CP"); // String processName, String fileName
-        rozkazy.add("SC"); // String processName, String communicate
         rozkazy.add("WF"); // String FileName, String Content
         rozkazy.add("WR"); // String FileName, String Register
-
+        rozkazy.add("RC"); //int ile_bajtów_chcesz_odczytać, String processName     // Czytanie komunikatu
+        rozkazy.add("SC"); //String communicate,  String processName (DLA KOGO?)    // Wysyłanie komunikatu 
 
         // ROZKAZY JEDNOARGUMENTOWE
         rozkazy.add("DP"); // String processName
@@ -113,10 +113,9 @@ public class Interpreter {
         rozkazy.add("CF"); // String Name
         rozkazy.add("DF"); // String name
         rozkazy.add("RF");
+        
 
         // ROZKAZY BEZARGUMENTOWE
-
-        rozkazy.add("RC"); // Czytanie komunikatu
         rozkazy.add("HT"); // END PROGRAM
 
         // [*] USTALONE REJESTRY [*] //
@@ -270,14 +269,19 @@ public class Interpreter {
 
             case "RC": // czytanie komunikatu;
 
-                //String received = Communication.read(ProcessorManager.RUNNING.GetName());
+                int count = getValue(param1);
+                String received = pipes.read(count, param2);
+             //   pipes.closepipe(des);
+                
                 //ProcessorManager.RUNNING.pcb.receivedMsg = received;
                 //fileSystem.createEmptyFile(ProcessorManager.RUNNING.GetName());
                 //fileSystem.appendToFile(ProcessorManager.RUNNING.GetName(), received);
                 break;
 
             case "SC": // -- Wysłanie komunikatu;
-                //Communication.write(param1, param2);
+                int des = pipes.openpipe(); 
+                pipes.write(param1, param2, des);
+                
                 break;
 /*
 		case "CP": {// -- tworzenie procesu (param1);
